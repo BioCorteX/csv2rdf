@@ -1,0 +1,21 @@
+mutation {
+  updateDrug(input: {
+    filter: {
+      name: {
+        eq: "drug 1"
+      }
+    },
+    set: {
+      ownedBy: {
+        name: "company 2"
+      }
+    }
+  }) {
+    drug {
+      name
+      ownedBy {
+        name
+      }
+    }
+  }
+}

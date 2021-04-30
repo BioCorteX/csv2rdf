@@ -1,0 +1,11 @@
+mutation {
+  addCompany(input: [
+    {
+      name: "company 1"
+    }
+  ]) {
+    company{
+      name
+    }
+  }
+}

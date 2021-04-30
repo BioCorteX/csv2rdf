@@ -1,0 +1,9 @@
+type Drug {
+    name: String! @id @search(by: [term])
+    ownedBy: Company @hasInverse(field: ownerOf)
+}
+
+type Company {
+    name: String! @id @search(by: [hash, regexp])
+    ownerOf: [Drug]
+}

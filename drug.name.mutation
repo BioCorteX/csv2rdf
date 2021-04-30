@@ -1,0 +1,11 @@
+mutation {
+  addDrug(input: [
+    {
+      name: "drug 1"
+    }
+  ]) {
+    drug {
+      name
+    }
+  }
+}
