@@ -11,6 +11,7 @@ services:
     image: dgraph/dgraph:latest
     volumes:
       - dgraph-data:/dgraph
+      - ${PWD}/data.rdf:/data.rdf
     ports:
       - 5080:5080
       - 6080:6080

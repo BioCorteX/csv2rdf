@@ -16,7 +16,12 @@ setup: up
 	#curl -X POST localhost:8080/admin/schema --data-binary '@schema.graphql'
 	./apply_shema.sh
 
+setup-pipenv:
+	export SYSTEM_VERSION_COMPAT=1
+	brew install llvm
+	pipenv install
+
 import:
-	python run_query.py company.name.mutation
-	python run_query.py drug.name.mutation
-	python run_query.py drug.ownedBy.mutation
+	pipenv run python run_query.py company.name.mutation
+	pipenv run python run_query.py drug.name.mutation
+	pipenv run python run_query.py drug.ownedBy.mutation

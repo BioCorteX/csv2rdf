@@ -6,8 +6,10 @@ name = "pypi"
 [packages]
 requests = "*"
 pandas = "*"
+numba = "*"
+pydgraph = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.8"
