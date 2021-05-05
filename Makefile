@@ -34,6 +34,4 @@ import-bulk: destroy
 	docker-compose up -d
 
 create_rdf:
-	pipenv run python create_rdf.py
-
-
+	PYTHONPATH=$${PWD}/src pipenv run python src/create_rdf.py
