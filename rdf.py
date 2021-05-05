@@ -12,11 +12,11 @@ def row_to_rdf(row, node, columns, index_blank_node):
         property = column
         if property.lower() == node.lower():
             property = 'name'
-            s += '<_:' + row[index_blank_node] + '> <dgraph.type> "' + node + '" .\n'
+            s += '_:' + row[index_blank_node] + ' <dgraph.type> "' + node + '" .\n'
 
         if pd.isna(row[index]):
             continue
-        s += '<_:' + row[index_blank_node] + '> <' + node + '.' + property + '> "' + row[index] + '" .\n'
+        s += '_:' + row[index_blank_node] + ' <' + node + '.' + property + '> "' + row[index] + '" .\n'
     return s
 
 
@@ -25,10 +25,10 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
         for node, df in data['nodes'].items():
             uid_column = [column for column in list(df.columns) if column.lower() == node.lower()]
             uid_column = uid_column[0]
-            df[':blank_node'] = df[uid_column].str.replace('[^a-z0-9A-Z/-]', '_', regex=True)
+            df[':blank_node'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '-', regex=True)
             df = df.replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
 
-            duplicate_index = df.duplicated(subset=':blank_node')
+            duplicate_index = df.duplicated(subset=':blank_node', keep=False)
             if len(df[duplicate_index]) > 0:
                 print(df[duplicate_index])
                 raise AssertionError(f"Found duplicates in {node}")

@@ -12,16 +12,28 @@ restart: destroy setup
 logs:
 	docker-compose logs -f
 
+exec:
+	docker-compose exec zero bash
+
 setup: up
 	#curl -X POST localhost:8080/admin/schema --data-binary '@schema.graphql'
-	./apply_shema.sh
+	./apply_schema.sh
 
 setup-pipenv:
 	export SYSTEM_VERSION_COMPAT=1
 	brew install llvm
 	pipenv install
 
-import:
-	pipenv run python run_query.py company.name.mutation
-	pipenv run python run_query.py drug.name.mutation
-	pipenv run python run_query.py drug.ownedBy.mutation
+import-live:
+	docker-compose exec zero bash -c "dgraph live -f ../data.rdf -a alpha:9080 -z zero:5080"
+
+import-bulk: destroy
+	#./apply_schema.sh
+	docker-compose up -d zero
+	docker-compose run zero bash -c "touch ../schema_empty.dql && dgraph bulk -f ../data.rdf -g ../schema_generated.graphql -s ../schema_empty.dql --reduce_shards=1 --zero=zero:5080 && mv out/0/p p && rm -rf out"
+	docker-compose up -d
+
+create_rdf:
+	pipenv run python create_rdf.py
+
+

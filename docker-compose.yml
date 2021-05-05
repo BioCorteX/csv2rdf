@@ -12,6 +12,8 @@ services:
     volumes:
       - dgraph-data:/dgraph
       - ${PWD}/data.rdf:/data.rdf
+      - ${PWD}/schema_generated.graphql:/schema_generated.graphql
+      - ${PWD}/schema_empty.dql:/schema_empty.dql
     ports:
       - 5080:5080
       - 6080:6080
