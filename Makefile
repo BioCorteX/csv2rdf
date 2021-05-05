@@ -21,7 +21,6 @@ setup: up
 
 setup-pipenv:
 	export SYSTEM_VERSION_COMPAT=1
-	brew install llvm
 	pipenv install
 
 import-live:

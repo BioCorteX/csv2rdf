@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 requests = "*"
 pandas = "*"
-numba = "*"
 pydgraph = "*"
 
 [dev-packages]
