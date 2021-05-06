@@ -10,9 +10,9 @@ def build_schema(node_columns, relations):
             else:
                 nodes_properties[node].append(f'{column}: String')
 
-    # todo: Add relations (edges).
-    # for node1, relation, node2 in relations:
-    #     pass
+    # Edges
+    for node1, relation, node2 in relations:
+        nodes_properties[node1].append(f'{relation}{node2}: [{node2}]')
 
     # Define node type with the calculated properties
     node_str = []

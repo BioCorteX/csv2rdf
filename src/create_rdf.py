@@ -4,9 +4,13 @@ from rdf import create_rdf
 from normalize_naming import normalize_data
 
 
-data = read(version='v1.2')
+print("Reading CSVs")
+data = read(version='demo')
+print("Normalizing nodes and columns")
 data = normalize_data(data)
 
+print("Creating Schema")
 create_schema(data, 'schema_generated.graphql')
+print("Creating RDF")
 create_rdf(data, 'data.rdf')
 
