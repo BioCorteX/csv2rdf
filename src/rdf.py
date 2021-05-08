@@ -4,6 +4,8 @@ import pandas as pd
 import time
 # from numba import jit
 
+from pandas.util import hash_pandas_object
+
 
 # @jit(parallel=True)
 def node_row_to_rdf(row, node, columns, index_blank_node):
@@ -39,7 +41,8 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
 
             uid_column = [column for column in list(df.columns) if column.lower() == node.lower()]
             uid_column = uid_column[0]
-            df[':blank_node'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '-', regex=True)
+            # df[':blank_node'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
+            df[':blank_node'] = hash_pandas_object(df[uid_column]).astype(str)
             df = df.replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
 
             duplicate_index = df.duplicated(subset=':blank_node', keep=False)
@@ -68,11 +71,13 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
 
             uid_column = [column for column in list(df.columns) if column.lower() == node1.lower()]
             uid_column = uid_column[0]
-            df[':blank_node1'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '-', regex=True)
+            # df[':blank_node1'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
+            df[':blank_node1'] = hash_pandas_object(df[uid_column]).astype(str)
 
             uid_column = [column for column in list(df.columns) if column.lower() == node2.lower()]
             uid_column = uid_column[0]
-            df[':blank_node2'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '-', regex=True)
+            # df[':blank_node2'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
+            df[':blank_node2'] = hash_pandas_object(df[uid_column]).astype(str)
 
             df = df.replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
 
