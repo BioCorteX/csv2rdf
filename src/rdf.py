@@ -40,7 +40,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             uid_column = [column for column in list(df.columns) if column.lower() == node.lower()]
             uid_column = uid_column[0]
             # df[':blank_node'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
-            df[':blank_node'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5(x.encode()).hexdigest())
+            df[':blank_node'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node + x).encode()).hexdigest())
 
             df = df.replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
 
@@ -71,12 +71,12 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             uid_column = [column for column in list(df.columns) if column.lower() == node1.lower()]
             uid_column = uid_column[0]
             # df[':blank_node1'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
-            df[':blank_node1'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5(x.encode()).hexdigest())
+            df[':blank_node1'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node1 + x).encode()).hexdigest())
 
             uid_column = [column for column in list(df.columns) if column.lower() == node2.lower()]
             uid_column = uid_column[0]
             # df[':blank_node2'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
-            df[':blank_node2'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5(x.encode()).hexdigest())
+            df[':blank_node2'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node2 + x).encode()).hexdigest())
 
             df = df.replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
 
