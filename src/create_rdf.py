@@ -5,7 +5,7 @@ from normalize_naming import normalize_data
 
 
 print("Reading CSVs")
-data = read(version='demo')
+data = read(version='demo', data_root_path='data')
 print("Normalizing nodes and columns")
 data = normalize_data(data)
 

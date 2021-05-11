@@ -34,3 +34,6 @@ import-bulk: destroy
 
 create_rdf:
 	PYTHONPATH=$${PWD}/src pipenv run python src/create_rdf.py
+
+get_schema:
+	curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n getGQLSchema {\n schema\n generatedSchema\n }\n}","variables":{}}'   --compressed | jq -r .data.getGQLSchema.schema

@@ -66,6 +66,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             print(f"\t{relation} ({len(df)} rows) ({count}/{len(data['relations'])})", end=' ', flush=True)
             node1, edge, node2 = relation
 
+            edge_reverse = f"{node2}.{edge}{node2}{node1}"
             edge = f"{node1}.{edge}{node2}"
 
             uid_column = [column for column in list(df.columns) if column.lower() == node1.lower()]
@@ -95,6 +96,8 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
                 print(f".", end='', flush=True)
                 df2 = df[page*100000:(page+1)*100000]
                 rdf = '_:' + df2[':blank_node1'] + ' <' + edge + '> _:' + df2[':blank_node2'] + ' .'
+                rdf = rdf.str.cat(sep='\n')
+                rdf = '_:' + df2[':blank_node2'] + ' <' + edge_reverse + '> _:' + df2[':blank_node1'] + ' .'
                 rdf = rdf.str.cat(sep='\n')
 
                 file.write(rdf)

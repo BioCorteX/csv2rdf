@@ -12,8 +12,8 @@ def build_schema(node_columns, relations):
 
     # Edges
     for node1, relation, node2 in relations:
-        nodes_properties[node1].append(f'{relation}{node2}: [{node2}] @hasInverse(field: {relation}{node1})')
-        nodes_properties[node2].append(f'{relation}{node1}: [{node1}]')
+        nodes_properties[node1].append(f'{relation}{node2}: [{node2}] @hasInverse(field: "{relation}{node2}{node1}")')
+        nodes_properties[node2].append(f'{relation}{node2}{node1}: [{node1}] @hasInverse(field: "{relation}{node2}")')
 
     # Define node type with the calculated properties
     node_str = []
