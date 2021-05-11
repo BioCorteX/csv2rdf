@@ -29,11 +29,11 @@ import-live:
 import-bulk: destroy
 	#./apply_schema.sh
 	docker-compose up -d zero
-	docker-compose run zero bash -c "touch ../schema_empty.dql && dgraph bulk -f ../data.rdf -g ../schema_generated.graphql -s ../schema_empty.dql --reduce_shards=1 --zero=zero:5080 && mv out/0/p p && rm -rf out"
+	docker-compose run zero bash -c "dgraph bulk -f ../data.rdf -s ../schema_generated.dql --reduce_shards=1 --zero=zero:5080 && mv out/0/p p && rm -rf out"
 	docker-compose up -d
 
 create_rdf:
 	PYTHONPATH=$${PWD}/src pipenv run python src/create_rdf.py
 
 get_schema:
-	curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n getGQLSchema {\n schema\n generatedSchema\n }\n}","variables":{}}'   --compressed | jq -r .data.getGQLSchema.schema
+	curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n schema {}\n}","variables":{}}'   --compressed | jq -r .data.getGQLSchema.schema

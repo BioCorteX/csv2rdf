@@ -1,33 +1,25 @@
 def build_schema(node_columns, relations):
-    nodes_properties = {}
+    nodes_properties = []
     # Define all node properties
     for node, columns in node_columns.items():
-        if node not in nodes_properties:
-            nodes_properties[node] = []
+        # if node not in nodes_properties:
+        #     nodes_properties[node] = []
         for column in columns:
             if column.lower() == node.lower():
-                nodes_properties[node].append('name: String! @id @search(by: [term, exact, regexp])')
+                nodes_properties.append('name: string @index(fulltext, term) .')
             else:
-                nodes_properties[node].append(f'{column}: String')
+                nodes_properties.append(f'{column}: string .')
 
     # Edges
     for node1, relation, node2 in relations:
-        nodes_properties[node1].append(f'{relation}{node2}: [{node2}] @hasInverse(field: "{relation}{node2}{node1}")')
-        nodes_properties[node2].append(f'{relation}{node2}{node1}: [{node1}] @hasInverse(field: "{relation}{node2}")')
+        nodes_properties.append(f'{relation}: [uid] @reverse .')
 
     # Define node type with the calculated properties
-    node_str = []
-    for node, properties in nodes_properties.items():
-        s = f"\ntype {node} {{"
-        s += "\n    "
-        s += "\n    ".join(properties)
-        s += "\n}"
-        node_str.append(s)
-    schema = '\n'.join(node_str)
+    schema = "\n".join(set(nodes_properties))
     return schema
 
 
-def create_schema(data, filename='schema_generated.graphql'):
+def create_schema(data, filename='schema_generated.dql'):
     node_columns = {}
     for node, df in data['nodes'].items():
         node_columns[node] = list(df.columns)
