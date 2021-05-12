@@ -16,12 +16,13 @@ def build_schema(node_columns, relations):
     # Edges
     for node1, relation, node2 in relations:
         nodes_properties.append(f'{relation}: [uid] @reverse .')
+        nodes_types[node1].append(relation)
 
     schema = ''
     # type
     for node, columns in nodes_types.items():
         s = f"type {node} {{\n    "
-        s += "\n    ".join(columns)
+        s += "\n    ".join(set(columns))
         s += "\n}\n\n"
         schema += s
 
