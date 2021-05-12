@@ -2,7 +2,9 @@ import re
 
 
 def normalize_name(column, first_character=True):
-    column = column.replace(' ', "_").replace('/', '_').replace('-', '_').replace('.', '_').lower()
+    column = column[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '_' + x.group(0).lower(), column[1:])
+
+    column = column.replace(' ', "_").replace('/', '_').replace('-', '_').replace('.', '_').replace('(', '_').replace(')', '_').lower()
     if first_character:
         property = re.sub(r'(?:^|_)(\w)', lambda x: x.group(1).upper(), column)
     else:

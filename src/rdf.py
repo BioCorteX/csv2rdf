@@ -18,13 +18,13 @@ def node_row_to_rdf(row, node, columns, index_blank_node):
 
         if pd.isna(row[index]):
             continue
-        s += '_:' + row[index_blank_node] + ' <' + node + '.' + property + '> "' + str(row[index]) + '" .\n'
+        s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(row[index]) + '" .\n'
     return s
 
 
-def relations_row_to_rdf(row, index_blank_node1, edge, index_blank_node2):
-    s = '_:' + row[index_blank_node1] + ' <' + edge + '> _:' + row[index_blank_node2] + ' .'
-    return s
+# def relations_row_to_rdf(row, index_blank_node1, edge, index_blank_node2):
+#     s = '_:' + row[index_blank_node1] + ' <' + edge + '> _:' + row[index_blank_node2] + ' .'
+#     return s
 
 
 def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
@@ -66,7 +66,12 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             print(f"\t{relation} ({len(df)} rows) ({count}/{len(data['relations'])})", end=' ', flush=True)
             node1, edge, node2 = relation
 
-            edge = f"{node1}.{edge}{node2}"
+            property_columns = [column for column in list(df.columns) if column.lower() not in (node1.lower(), node2.lower())]
+            df.loc[:, property_columns] = df[property_columns].replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
+            if len(property_columns) > 0:
+                df["edge_properties"] = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}="{row[column]}"' for column in list(row.index)]) + ")", axis=1)
+            else:
+                df["edge_properties"] = ''
 
             uid_column = [column for column in list(df.columns) if column.lower() == node1.lower()]
             uid_column = uid_column[0]
@@ -77,8 +82,6 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             uid_column = uid_column[0]
             # df[':blank_node2'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
             df[':blank_node2'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node2 + x).encode()).hexdigest())
-
-            df = df.replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
 
             duplicate_index = df.duplicated(subset=[':blank_node1', ':blank_node2'], keep=False)
             if len(df[duplicate_index]) > 0:
@@ -94,7 +97,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             for page in range(int(len(df)/100000) + 1):
                 print(f".", end='', flush=True)
                 df2 = df[page*100000:(page+1)*100000]
-                rdf = '_:' + df2[':blank_node1'] + ' <' + edge + '> _:' + df2[':blank_node2'] + ' .'
+                rdf = '_:' + df2[':blank_node1'] + ' <' + edge + '> _:' + df2[':blank_node2'] + df["edge_properties"] + ' .'
                 rdf = rdf.str.cat(sep='\n')
 
                 file.write(rdf)
