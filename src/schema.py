@@ -1,21 +1,34 @@
 def build_schema(node_columns, relations):
     nodes_properties = []
+    nodes_types= {}
     # Define all node properties
     for node, columns in node_columns.items():
-        # if node not in nodes_properties:
-        #     nodes_properties[node] = []
+        if node not in nodes_types:
+            nodes_types[node] = []
         for column in columns:
             if column.lower() == node.lower():
                 nodes_properties.append('name: string @index(fulltext, term) .')
+                nodes_types[node].append('name')
             else:
                 nodes_properties.append(f'{column}: string .')
+                nodes_types[node].append(column)
 
     # Edges
     for node1, relation, node2 in relations:
         nodes_properties.append(f'{relation}: [uid] @reverse .')
 
+    schema = ''
+    # type
+    for node, columns in nodes_types.items():
+        s = f"type {node} {{\n    "
+        s += "\n    ".join(columns)
+        s += "\n}\n\n"
+        schema += s
+
+    schema += "\n"
+
     # Define node type with the calculated properties
-    schema = "\n".join(set(nodes_properties))
+    schema += "\n".join(set(nodes_properties))
     return schema
 
 
