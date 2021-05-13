@@ -10,7 +10,16 @@ def build_schema(node_columns, relations):
                 nodes_properties.append('name: string @index(fulltext, term) .')
                 nodes_types[node].append('name')
             else:
-                nodes_properties.append(f'{column}: string .')
+                if column.endswith("Float"):
+                    nodes_properties.append(f'{column}: float .')
+                elif column.endswith("Int"):
+                    nodes_properties.append(f'{column}: int .')
+                elif column.endswith("Bool"):
+                    nodes_properties.append(f'{column}: bool .')
+                elif column.endswith("Date"):
+                    nodes_properties.append(f'{column}: dateTime .')
+                else:
+                    nodes_properties.append(f'{column}: string .')
                 nodes_types[node].append(column)
 
     # Edges
