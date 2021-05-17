@@ -16,7 +16,7 @@ def build_schema(node_columns, relations):
                     nodes_properties.append(f'{column}: int .')
                 elif column.endswith("Bool"):
                     nodes_properties.append(f'{column}: bool .')
-                elif column.endswith("Date"):
+                elif column.endswith("DateDisabled"):
                     nodes_properties.append(f'{column}: dateTime .')
                 else:
                     nodes_properties.append(f'{column}: string .')
@@ -24,7 +24,7 @@ def build_schema(node_columns, relations):
 
     # Edges
     for node1, relation, node2 in relations:
-        nodes_properties.append(f'{relation}: [uid] @reverse .')
+        nodes_properties.append(f'{node1}{relation}{node2}: [uid] @reverse .')
         nodes_types[node1].append(relation)
 
     schema = ''

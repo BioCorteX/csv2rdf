@@ -66,10 +66,12 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             print(f"\t{relation} ({len(df)} rows) ({count}/{len(data['relations'])})", end=' ', flush=True)
             node1, edge, node2 = relation
 
+            edge = f"{node1}{edge}{node2}"
+
             property_columns = [column for column in list(df.columns) if column.lower() not in (node1.lower(), node2.lower())]
             df.loc[:, property_columns] = df[property_columns].replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
             if len(property_columns) > 0:
-                df["edge_properties"] = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}=' + ('"' if not column.endswith(("Date", "Float", "Int", "Bool")) else '') + f'{row[column]}' + ('"' if not column.endswith(("Date", "Float", "Int", "Bool")) else '') for column in list(row.index)]) + ")", axis=1)
+                df["edge_properties"] = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}=' + ('"' if not column.endswith(("DateDisabled", "Float", "Int", "Bool")) else '') + f'{row[column]}' + ('"' if not column.endswith(("DateDisabled", "Float", "Int", "Bool")) else '') for column in list(row.index)]) + ")", axis=1)
             else:
                 df["edge_properties"] = ''
 
