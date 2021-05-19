@@ -7,7 +7,8 @@ from normalize_naming import normalize_data
 path_to_data = os.environ.get('DATAPATH', 'data')
 
 print("Reading CSVs")
-data = read(version='demo', data_root_path='data')
+data = read(version='v1.1', data_root_path='/Users/michaelhobbs/data/Adamant/refactored/grakn_ingest/')
+
 print("Normalizing nodes and columns")
 data = normalize_data(data)
 

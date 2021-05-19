@@ -40,14 +40,14 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             uid_column = [column for column in list(df.columns) if column.lower() == node.lower()]
             uid_column = uid_column[0]
             # df[':blank_node'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
-            df[':blank_node'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node + x).encode()).hexdigest())
+            df[':blank_node'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node + x).lower().encode()).hexdigest())
 
             df = df.replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
 
-            duplicate_index = df.duplicated(subset=':blank_node', keep=False)
-            if len(df[duplicate_index]) > 0:
-                print(df[duplicate_index])
-                raise AssertionError(f"Found duplicates in {node}")
+            # duplicate_index = df.duplicated(subset=':blank_node', keep=False)
+            # if len(df[duplicate_index]) > 0:
+            #     print(df[duplicate_index])
+            #     raise AssertionError(f"Found duplicates in {node}")
 
             index_blank_node = [index for index, column in enumerate(list(df.columns)) if column == ':blank_node']
             index_blank_node = index_blank_node[0]
@@ -66,29 +66,41 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             print(f"\t{relation} ({len(df)} rows) ({count}/{len(data['relations'])})", end=' ', flush=True)
             node1, edge, node2 = relation
 
+            if 'Property' in node2:
+                node2 = 'Property'
+
             edge = f"{node1}{edge}{node2}"
+
+            if node1 == node2:
+                node2 = node2 + '_1'
 
             property_columns = [column for column in list(df.columns) if column.lower() not in (node1.lower(), node2.lower())]
             df.loc[:, property_columns] = df[property_columns].replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
             if len(property_columns) > 0:
-                df["edge_properties"] = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}=' + ('"' if not column.endswith(("DateDisabled", "Float", "Int", "Bool")) else '') + f'{row[column]}' + ('"' if not column.endswith(("DateDisabled", "Float", "Int", "Bool")) else '') for column in list(row.index)]) + ")", axis=1)
+                df["edge_properties"] = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}=' + ('"' if not column.endswith(("DateDisabled", "Float2", "Int2", "Bool")) else '') + f'{row[column]}' + ('"' if not column.endswith(("DateDisabled", "Float2", "Int2", "Bool")) else '') for column in list(row.index)]) + ")", axis=1)
             else:
                 df["edge_properties"] = ''
 
             uid_column = [column for column in list(df.columns) if column.lower() == node1.lower()]
             uid_column = uid_column[0]
             # df[':blank_node1'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
-            df[':blank_node1'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node1 + x).encode()).hexdigest())
+            df[':blank_node1'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node1 + x).lower().encode()).hexdigest())
 
             uid_column = [column for column in list(df.columns) if column.lower() == node2.lower()]
             uid_column = uid_column[0]
-            # df[':blank_node2'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
-            df[':blank_node2'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node2 + x).encode()).hexdigest())
 
-            duplicate_index = df.duplicated(subset=[':blank_node1', ':blank_node2'], keep=False)
-            if len(df[duplicate_index]) > 0:
-                print(df[duplicate_index])
-                raise AssertionError(f"Found duplicates in node1: {node1} edge: {edge} node2: {node2}")
+            if node2 == node1 + '_1':
+                # df[':blank_node2'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
+                df[':blank_node2'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node1 + x).lower().encode()).hexdigest())
+
+            else:
+                df[':blank_node2'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node2 + x).lower().encode()).hexdigest())
+
+
+            # duplicate_index = df.duplicated(subset=[':blank_node1', ':blank_node2'], keep=False)
+            # if len(df[duplicate_index]) > 0:
+            #     print(df[duplicate_index])
+            #     raise AssertionError(f"Found duplicates in node1: {node1} edge: {edge} node2: {node2}")
 
             # index_blank_node1 = [index for index, column in enumerate(list(df.columns)) if column == ':blank_node1']
             # index_blank_node1 = index_blank_node1[0]

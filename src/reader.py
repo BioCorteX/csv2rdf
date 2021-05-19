@@ -4,6 +4,7 @@ import glob
 
 
 def read_csv(filepath):
+    print(filepath)
     filepath_cache = filepath + '.cache'
     if os.path.isfile(filepath_cache):
         df = pd.read_pickle(filepath_cache)

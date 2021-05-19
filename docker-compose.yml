@@ -8,7 +8,7 @@
 version: "3.2"
 services:
   zero:
-    image: dgraph/dgraph:latest
+    image: dgraph/dgraph:master
     volumes:
       - dgraph-data:/dgraph
       - ${PWD}/data.rdf:/data.rdf
@@ -19,7 +19,7 @@ services:
     restart: on-failure
     command: dgraph zero --my=zero:5080
   alpha:
-    image: dgraph/dgraph:latest
+    image: dgraph/dgraph:master
     volumes:
       - dgraph-data:/dgraph
     ports:

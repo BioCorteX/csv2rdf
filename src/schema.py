@@ -24,8 +24,10 @@ def build_schema(node_columns, relations):
 
     # Edges
     for node1, relation, node2 in relations:
+        if 'Property' in node2:
+            node2 = 'Property'
         nodes_properties.append(f'{node1}{relation}{node2}: [uid] @reverse .')
-        nodes_types[node1].append(relation)
+        nodes_types[node1].append(f'{node1}{relation}{node2}')
 
     schema = ''
     # type
