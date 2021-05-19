@@ -108,15 +108,64 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             # index_blank_node2 = index_blank_node2[0]
             # rdf = df.apply(relations_row_to_rdf, axis=1, index_blank_node1=index_blank_node1, edge=edge, index_blank_node2=index_blank_node2, raw=True)
 
-            for page in range(int(len(df)/100000) + 1):
+            # for page in range(int(len(df)/100000) + 1):
+            #     print(f".", end='', flush=True)
+            #     df2 = df[page*100000:(page+1)*100000]
+            #     rdf = '_:' + df2[':blank_node1'] + ' <' + edge + '> _:' + df2[':blank_node2'] + df["edge_properties"] + ' .'
+            #     rdf = rdf.str.cat(sep='\n')
+            #
+            #     file.write(rdf)
+            #     file.write('\n')
+            # file.write('\n\n')
+
+
+            prev_tracker = 0
+            blank_node1_prev = ''
+            blank_node2_prev = ''
+
+            for i in range(len(df)):
                 print(f".", end='', flush=True)
-                df2 = df[page*100000:(page+1)*100000]
-                rdf = '_:' + df2[':blank_node1'] + ' <' + edge + '> _:' + df2[':blank_node2'] + df["edge_properties"] + ' .'
-                rdf = rdf.str.cat(sep='\n')
+                df2 = df
+                blank_node1 = df2[':blank_node1'].iloc[i]
+                blank_node2 = df2[':blank_node2'].iloc[i]
+
+                if 'Property' in node2:
+                    if blank_node1 == blank_node1_prev and blank_node2 == blank_node2_prev:
+                        # rdf = '_:' + df2[':blank_node1'].iloc[i] + str(prev_tracker) + ' <dgraph.type> "' + 'abstract_queue' + '" .\n'
+                        # rdf += '_:' + df2[':blank_node1'].iloc[i] + str(prev_tracker) + ' <name> "' + df2[':blank_node1'].iloc[i] + str(prev_tracker) + '" .\n'
+                        rdf = '_:' + df2[':blank_node1'].iloc[i] + str(prev_tracker) + ' <to> _:' + df2[':blank_node1'].iloc[i] + ' .'
+                        rdf += '\n' + '_:' + df2[':blank_node2'].iloc[i] + ' <' + edge + '> _:' + df2[':blank_node1'].iloc[i] + str(prev_tracker) + df[
+                            "edge_properties"].iloc[i] + ' .'
+                        prev_tracker += 1
+
+                    else:
+                        prev_tracker = 0
+                        rdf = '_:' + df2[':blank_node1'].iloc[i] + str(prev_tracker) + ' <to> _:' + \
+                              df2[':blank_node1'].iloc[i] + ' .'
+                        rdf += '\n' + '_:' + df2[':blank_node2'].iloc[i] + ' <' + edge + '> _:' + \
+                               df2[':blank_node1'].iloc[i] + str(prev_tracker) + df[
+                                   "edge_properties"].iloc[i] + ' .'
+                        prev_tracker += 1
+                        
+                else:
+                    rdf = '_:' + df2[':blank_node1'].iloc[i] + ' <' + edge + '> _:' + df2[':blank_node2'].iloc[i] + df["edge_properties"].iloc[i] + ' .'
+                    prev_tracker = 0
+
+                blank_node1_prev = df2[':blank_node1'].iloc[i]
+                blank_node2_prev = df2[':blank_node2'].iloc[i]
+
+                try:
+                    rdf = rdf.str.cat(sep='\n')
+
+                except AttributeError:
+                    pass
+
 
                 file.write(rdf)
                 file.write('\n')
+
             file.write('\n\n')
+
             print(f" {time.time() - start_time:.2f} s")
 
 

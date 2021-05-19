@@ -28,6 +28,7 @@ def build_schema(node_columns, relations):
             node2 = 'Property'
         nodes_properties.append(f'{node1}{relation}{node2}: [uid] @reverse .')
         nodes_types[node1].append(f'{node1}{relation}{node2}')
+        nodes_types[node1].append(f'to')
 
     schema = ''
     # type
@@ -37,10 +38,16 @@ def build_schema(node_columns, relations):
         s += "\n}\n\n"
         schema += s
 
+    s = f"type abstract_queue {{\n    "
+    s += "\n    ".join(set(columns))
+    s += "\n}\n\n"
+    schema += s
+
     schema += "\n"
 
     # Define node type with the calculated properties
     schema += "\n".join(set(nodes_properties))
+    schema += '\nto: [uid] @reverse .'
     return schema
 
 
