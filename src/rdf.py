@@ -3,6 +3,8 @@ import sys
 from typing import Dict
 import pandas as pd
 import time
+import numpy as np
+import math
 # from numba import jit
 
 # @jit(parallel=True)
@@ -33,6 +35,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
         print("Writing Nodes to RDF")
         count = 0
         for node, df in data['nodes'].items():
+            df = df.replace(np.nan, 'nan')
             count += 1
             start_time = time.time()
             print(f"\t{node} ({len(df)} rows) ({count}/{len(data['nodes'])})", end=' ', flush=True)
@@ -76,10 +79,53 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
 
             property_columns = [column for column in list(df.columns) if column.lower() not in (node1.lower(), node2.lower())]
             df.loc[:, property_columns] = df[property_columns].replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
-            if len(property_columns) > 0:
-                df["edge_properties"] = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}=' + ('"' if not column.endswith(("DateDisabled", "Float2", "Int2", "Bool")) else '') + f'{row[column]}' + ('"' if not column.endswith(("DateDisabled", "Float2", "Int2", "Bool")) else '') for column in list(row.index)]) + ")", axis=1)
-            else:
-                df["edge_properties"] = ''
+            # if len(property_columns) > 0:
+            #     df["edge_properties"] = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}=' + ('"' if not column.endswith(("DateDisabled", "Float2", "Int2", "Bool")) else '') + f'{row[column]}' + ('"' if not column.endswith(("DateDisabled", "Float2", "Int2", "Bool")) else '') for column in list(row.index)]) + ")", axis=1)
+            #     # df2 = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}=' + (
+            #     #     '"' if not column.endswith(
+            #     #         ("DateDisabled", "Float2", "Int2", "Bool")) else '') + f'{row[column]}' + (
+            #     #                                                                                      '"' if not column.endswith(
+            #     #                                                                                          (
+            #     #                                                                                          "DateDisabled",
+            #     #                                                                                          "Float2",
+            #     #                                                                                          "Int2",
+            #     #                                                                                          "Bool")) else '')
+            #     #                                                                                  for column in list(
+            #     #         row.index)]) + ")", axis=1)
+            # else:
+            #     df["edge_properties"] = ''
+
+            df2 = []
+            for i in range(len(df[property_columns])):
+                edge_prop = ' ('
+                att_added = 0
+                for col in property_columns:
+                    try:
+                        if math.isnan(df[col].iloc[i]) == False:
+                            if col.endswith(("DateDisabled", "Float2", "Int2", "Bool")):
+                                edge_prop += col + '=' + str(df[col].iloc[i]) + ', '
+                                att_added = 1
+
+                    except TypeError:
+                        att_added = 0
+                        pass
+
+                    if pd.isna(df[col].iloc[i]) == False and att_added == 0:
+                        edge_prop += col + '=' +'"' + str(df[col].iloc[i]) + '", '
+                        att_added = 1
+
+                    else:
+                        att_added = 0
+
+
+                edge_prop = edge_prop.rstrip(', ')
+                edge_prop += ')'
+
+                pd.isna(df[col].iloc[i])
+
+                df2.append(edge_prop)
+
+            df["edge_properties"] = df2
 
             uid_column = [column for column in list(df.columns) if column.lower() == node1.lower()]
             uid_column = uid_column[0]
@@ -146,7 +192,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
                                df2[':blank_node1'].iloc[i] + str(prev_tracker) + df[
                                    "edge_properties"].iloc[i] + ' .'
                         prev_tracker += 1
-                        
+
                 else:
                     rdf = '_:' + df2[':blank_node1'].iloc[i] + ' <' + edge + '> _:' + df2[':blank_node2'].iloc[i] + df["edge_properties"].iloc[i] + ' .'
                     prev_tracker = 0
