@@ -35,7 +35,7 @@ update the data directory location in ```src/create_rdf.py``` line 9.
 run the following commands
 
 ```
-make create-rdf
+make csv2rdf
 make import-bulk
 ```
 

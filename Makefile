@@ -1,4 +1,4 @@
-.PHONY: version up down destroy restart logs exec setup setup-pipenv import-live import-bulk create-rdf get-scheam test test-open-coverage doc doc-html doc-html-clean clean clean-all docker-build docker-run docker-test build install
+.PHONY: version up down destroy restart logs exec setup setup-pipenv import-live import-bulk csv2rdf get-scheam test test-open-coverage doc doc-html doc-html-clean clean clean-all docker-build docker-run docker-test build install
 
 PROJECT_NAME := csv2rdf
 PROJECT_VERSION := $(shell pipenv run python -c 'import version; print(version.__version__)' 2> /dev/null)
@@ -42,8 +42,8 @@ import-bulk: destroy
 	docker-compose run zero bash -c "dgraph bulk -f ../data.rdf -s ../schema_generated.dql --reduce_shards=1 --zero=zero:5080 && mv out/0/p p && rm -rf out"
 	docker-compose up -d
 
-create-rdf:
-	PYTHONPATH=$${PWD}/src pipenv run python src/create_rdf.py
+csv2rdf:
+	pipenv run csv2rdf
 
 get-schema:
 	curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n schema {}\n}","variables":{}}'   --compressed | jq -r .data.getGQLSchema.schemainclude .env

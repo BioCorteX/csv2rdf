@@ -4,8 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pandas = "*"
-click = "*"
+"csv2rdf" = {path = ".", editable = true}
 
 [dev-packages]
 requests = "*"

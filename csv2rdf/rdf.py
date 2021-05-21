@@ -69,9 +69,9 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
                 def foreach(row):
                     string = []
                     for column in list(row.index):
-                        quote = ''
+                        quote = '"'
                         if column.endswith(("DateDisabled", "Float", "Int", "Bool")):
-                            quote = '"'
+                            quote = ''
                         string.append(f'{column}=' + quote + f'{row[column]}' + quote)
                     return " (" + ", ".join(string) + ")"
                 df["edge_properties"] = df[property_columns].apply(foreach, axis=1)
