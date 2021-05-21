@@ -11,6 +11,11 @@ click = "*"
 requests = "*"
 pydgraph = "*"
 portray = "*"
+coverage = "*"
+pylint = "*"
+diff-cover = "*"
+pytest = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.8"

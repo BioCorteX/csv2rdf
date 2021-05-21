@@ -3,6 +3,8 @@
 PROJECT_NAME := csv2rdf
 PROJECT_VERSION := $(shell pipenv run python -c 'import version; print(version.__version__)' 2> /dev/null)
 
+run: setup-pipenv build install
+
 version:
 	@echo $(PROJECT_VERSION)
 
@@ -29,7 +31,7 @@ setup: up
 
 setup-pipenv:
 	export SYSTEM_VERSION_COMPAT=1
-	pipenv install
+	pipenv install -d
 
 import-live:
 	docker-compose exec zero bash -c "dgraph live -f ../data.rdf -a alpha:9080 -z zero:5080"

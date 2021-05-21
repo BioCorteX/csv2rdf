@@ -1,6 +1,6 @@
 import os
-import pandas as pd
 import glob
+import pandas as pd
 
 
 def read_csv(filepath):
@@ -15,7 +15,8 @@ def read_csv(filepath):
 
 def read_nodes(data_path, nodes_path='nodes'):
     node_files = glob.glob(os.path.join(data_path, nodes_path, '*.csv'))
-    node_files = {os.path.splitext(os.path.basename(file))[0]: file for file in node_files if not os.path.basename(file).startswith('--')}
+    node_files = {os.path.splitext(os.path.basename(file))[0]: file for file in node_files if
+                  not os.path.basename(file).startswith('--')}
 
     node_dfs = {}
     for node, file in node_files.items():
@@ -26,7 +27,8 @@ def read_nodes(data_path, nodes_path='nodes'):
 
 def read_relations(data_path, relations_path='relations'):
     relation_files = glob.glob(os.path.join(data_path, relations_path, '*.csv'))
-    relation_files = {os.path.splitext(os.path.basename(file))[0]: file for file in relation_files if not os.path.basename(file).startswith('--')}
+    relation_files = {os.path.splitext(os.path.basename(file))[0]: file for file in relation_files if
+                      not os.path.basename(file).startswith('--')}
 
     relation_dfs = {}
     for relation, file in relation_files.items():

@@ -1,5 +1,26 @@
-CSV2RDF
+#CSV2RDF
 
+##Build python package
+To build package run:
+
+```bash
+make
+```
+
+##Build documentation
+
+```bash
+make doc
+```
+
+##Run tests
+
+```bash
+make test
+```
+
+
+##Run csv2rdf and load to dgraph:
 ```
 make setup-pipenv
 ```
@@ -14,7 +35,7 @@ update the data directory location in ```src/create_rdf.py``` line 9.
 run the following commands
 
 ```
-make create_rdf
+make create-rdf
 make import-bulk
 ```
 

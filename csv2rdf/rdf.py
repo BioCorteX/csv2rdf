@@ -1,30 +1,23 @@
 import hashlib
-import sys
 from typing import Dict
 import pandas as pd
 import time
-# from numba import jit
 
-# @jit(parallel=True)
+
 def node_row_to_rdf(row, node, columns, index_blank_node):
-    s = ""
+    string = ""
     for index, column in enumerate(columns):
         if column == ':blank_node':
             continue
-        property = column
-        if property.lower() == node.lower():
-            property = 'name'
-            s += '_:' + row[index_blank_node] + ' <dgraph.type> "' + node + '" .\n'
+        property_ = column
+        if property_.lower() == node.lower():
+            property_ = 'name'
+            string += '_:' + row[index_blank_node] + ' <dgraph.type> "' + node + '" .\n'
 
         if pd.isna(row[index]):
             continue
-        s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(row[index]) + '" .\n'
-    return s
-
-
-# def relations_row_to_rdf(row, index_blank_node1, edge, index_blank_node2):
-#     s = '_:' + row[index_blank_node1] + ' <' + edge + '> _:' + row[index_blank_node2] + ' .'
-#     return s
+        string += '_:' + row[index_blank_node] + ' <' + property_ + '> "' + str(row[index]) + '" .\n'
+    return string
 
 
 def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
@@ -39,7 +32,6 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
 
             uid_column = [column for column in list(df.columns) if column.lower() == node.lower()]
             uid_column = uid_column[0]
-            # df[':blank_node'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
             df[':blank_node'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node + x).encode()).hexdigest())
 
             df = df.replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
@@ -51,7 +43,8 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
 
             index_blank_node = [index for index, column in enumerate(list(df.columns)) if column == ':blank_node']
             index_blank_node = index_blank_node[0]
-            rdf = df.apply(node_row_to_rdf, axis=1, node=node, columns=list(df.columns), index_blank_node=index_blank_node, raw=True)
+            rdf = df.apply(node_row_to_rdf, axis=1, node=node, columns=list(df.columns),
+                           index_blank_node=index_blank_node, raw=True)
             rdf = rdf.str.cat(sep='\n')
 
             file.write(rdf)
@@ -68,57 +61,46 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
 
             edge = f"{node1}{edge}{node2}"
 
-            property_columns = [column for column in list(df.columns) if column.lower() not in (node1.lower(), node2.lower())]
-            df.loc[:, property_columns] = df[property_columns].replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'}, regex=True)
+            property_columns = [column for column in list(df.columns) if
+                                column.lower() not in (node1.lower(), node2.lower())]
+            df.loc[:, property_columns] = df[property_columns].replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'},
+                                                                       regex=True)
             if len(property_columns) > 0:
-                df["edge_properties"] = df[property_columns].apply(lambda row: " (" + ", ".join([f'{column}=' + ('"' if not column.endswith(("DateDisabled", "Float", "Int", "Bool")) else '') + f'{row[column]}' + ('"' if not column.endswith(("DateDisabled", "Float", "Int", "Bool")) else '') for column in list(row.index)]) + ")", axis=1)
+                def foreach(row):
+                    string = []
+                    for column in list(row.index):
+                        quote = ''
+                        if column.endswith(("DateDisabled", "Float", "Int", "Bool")):
+                            quote = '"'
+                        string.append(f'{column}=' + quote + f'{row[column]}' + quote)
+                    return " (" + ", ".join(string) + ")"
+                df["edge_properties"] = df[property_columns].apply(foreach, axis=1)
             else:
                 df["edge_properties"] = ''
 
             uid_column = [column for column in list(df.columns) if column.lower() == node1.lower()]
             uid_column = uid_column[0]
-            # df[':blank_node1'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
-            df[':blank_node1'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node1 + x).encode()).hexdigest())
+            df[':blank_node1'] = df[uid_column].astype(str).apply(
+                lambda x: hashlib.md5((node1 + x).encode()).hexdigest())
 
             uid_column = [column for column in list(df.columns) if column.lower() == node2.lower()]
             uid_column = uid_column[0]
-            # df[':blank_node2'] = df[uid_column].str.replace('[^a-z0-9A-Z\-_/]', '_', regex=True).str.replace('[^a-z0-9A-Z\-_]', '--', regex=True)
-            df[':blank_node2'] = df[uid_column].astype(str).apply(lambda x: hashlib.md5((node2 + x).encode()).hexdigest())
+            df[':blank_node2'] = df[uid_column].astype(str).apply(
+                lambda x: hashlib.md5((node2 + x).encode()).hexdigest())
 
             duplicate_index = df.duplicated(subset=[':blank_node1', ':blank_node2'], keep=False)
             if len(df[duplicate_index]) > 0:
                 print(df[duplicate_index])
                 raise AssertionError(f"Found duplicates in node1: {node1} edge: {edge} node2: {node2}")
 
-            # index_blank_node1 = [index for index, column in enumerate(list(df.columns)) if column == ':blank_node1']
-            # index_blank_node1 = index_blank_node1[0]
-            # index_blank_node2 = [index for index, column in enumerate(list(df.columns)) if column == ':blank_node2']
-            # index_blank_node2 = index_blank_node2[0]
-            # rdf = df.apply(relations_row_to_rdf, axis=1, index_blank_node1=index_blank_node1, edge=edge, index_blank_node2=index_blank_node2, raw=True)
-
-            for page in range(int(len(df)/100000) + 1):
-                print(f".", end='', flush=True)
-                df2 = df[page*100000:(page+1)*100000]
-                rdf = '_:' + df2[':blank_node1'] + ' <' + edge + '> _:' + df2[':blank_node2'] + df["edge_properties"] + ' .'
+            for page in range(int(len(df) / 100000) + 1):
+                print(".", end='', flush=True)
+                df2 = df[page * 100000:(page + 1) * 100000]
+                rdf = '_:' + df2[':blank_node1'] + ' <' + edge + '> _:' + df2[':blank_node2'] + df[
+                    "edge_properties"] + ' .'
                 rdf = rdf.str.cat(sep='\n')
 
                 file.write(rdf)
                 file.write('\n')
             file.write('\n\n')
             print(f" {time.time() - start_time:.2f} s")
-
-
-"""
-    _:class <student> _:x .
-    _:class <student> _:y .
-    _:class <name> "awesome class" .
-    _:class <dgraph.type> "Class" .
-    _:x <name> "Alice" .
-    _:x <dgraph.type> "Person" .
-    _:x <dgraph.type> "Student" .
-    _:x <planet> "Mars" .
-    _:x <friend> _:y .
-    _:y <name> "Bob" .
-    _:y <dgraph.type> "Person" .
-    _:y <dgraph.type> "Student" .
-"""
