@@ -1,6 +1,10 @@
-PROJECT_NAME=csv2rdf
+.PHONY: version up down destroy restart logs exec setup setup-pipenv import-live import-bulk create-rdf get-scheam test test-open-coverage doc doc-html doc-html-clean clean clean-all docker-build docker-run docker-test build install
 
-.PHONY: up down destroy restart logs exec setup setup-pipenv import-live import-bulk create-rdf get-scheam test test-open-coverage doc doc-html doc-html-clean clean clean-all docker-build docker-run docker-test build install
+PROJECT_NAME := csv2rdf
+PROJECT_VERSION := $(shell pipenv run python -c 'import version; print(version.__version__)' 2> /dev/null)
+
+version:
+	@echo $(PROJECT_VERSION)
 
 up:
 	docker-compose up -d
@@ -41,7 +45,6 @@ create-rdf:
 
 get-schema:
 	curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n schema {}\n}","variables":{}}'   --compressed | jq -r .data.getGQLSchema.schemainclude .env
-export $(shell sed 's/=.*//' .env)
 
 test:
 	@echo ""
@@ -73,17 +76,17 @@ test-open-coverage:
 	open htmlcov/index.html
 
 doc:
-	pipenv run portray in_browser --modules r2dl_ocr
+	pipenv run portray in_browser --modules ${PROJECT_NAME}
 
 doc-html:
-	pipenv run portray as_html --modules r2dl_ocr --overwrite
+	pipenv run portray as_html --modules ${PROJECT_NAME} --overwrite
 
 doc-html-clean:
 	rm -rf site
 
 clean: doc-html-clean
 	rm -rf coverage.xml .coverage .pytest_cache htmlcov
-	rm -rf r2dl_ocr.egg-info build dist __pycache__
+	rm -rf build dist csv2rdf.egg-info __pycache__
 
 clean-all: clean
 	pipenv --rm

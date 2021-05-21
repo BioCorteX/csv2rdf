@@ -10,6 +10,7 @@ click = "*"
 [dev-packages]
 requests = "*"
 pydgraph = "*"
+portray = "*"
 
 [requires]
 python_version = "3.8"
