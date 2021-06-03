@@ -60,9 +60,11 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             node1, edge, node2 = relation
 
             edge = f"{node1}{edge}{node2}"
+            node1_column = node1 + "__0"
+            node2_column = node2 + "__1"
 
             property_columns = [column for column in list(df.columns) if
-                                column.lower() not in (node1.lower(), node2.lower())]
+                                column.lower() not in (node1_column.lower(), node2_column.lower())]
             df.loc[:, property_columns] = df[property_columns].replace({'"': '\\"', '\\\\': '\\\\\\\\', '\n': '\\\\n'},
                                                                        regex=True)
             if len(property_columns) > 0:
@@ -78,12 +80,12 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             else:
                 df["edge_properties"] = ''
 
-            uid_column = [column for column in list(df.columns) if column.lower() == node1.lower()]
+            uid_column = [column for column in list(df.columns) if column.lower() == node1_column.lower()]
             uid_column = uid_column[0]
             df[':blank_node1'] = df[uid_column].astype(str).apply(
                 lambda x: hashlib.md5((node1 + x).encode()).hexdigest())
 
-            uid_column = [column for column in list(df.columns) if column.lower() == node2.lower()]
+            uid_column = [column for column in list(df.columns) if column.lower() == node2_column.lower()]
             uid_column = uid_column[0]
             df[':blank_node2'] = df[uid_column].astype(str).apply(
                 lambda x: hashlib.md5((node2 + x).encode()).hexdigest())
