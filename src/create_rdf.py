@@ -16,4 +16,6 @@ print("Creating Schema")
 create_schema(data, 'schema_generated.dql')
 print("Creating RDF")
 create_rdf(data, 'data.rdf')
+end = time.time()
+print(end - start)
 

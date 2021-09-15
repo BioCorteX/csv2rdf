@@ -10,6 +10,7 @@ import math
 # @jit(parallel=True)
 def node_row_to_rdf(row, node, columns, index_blank_node):
     s = ""
+    global count_x
     for index, column in enumerate(columns):
         if column == ':blank_node':
             continue
@@ -20,7 +21,15 @@ def node_row_to_rdf(row, node, columns, index_blank_node):
 
         if pd.isna(row[index]):
             continue
-        s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(row[index]) + '" .\n'
+
+        if property.endswith(("Date", "Float", "Int2", "Bool")) and str(row[index]) != 'nan':
+            s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(row[index]) + '" .\n'
+            count_x += 1
+
+        elif str(row[index]) != 'nan':
+            s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(row[index]) + '" .\n'
+            count_x += 1
+
     return s
 
 
@@ -28,10 +37,11 @@ def node_row_to_rdf(row, node, columns, index_blank_node):
 #     s = '_:' + row[index_blank_node1] + ' <' + edge + '> _:' + row[index_blank_node2] + ' .'
 #     return s
 
+count_x = 0
+count_y = 0
 
 def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
     with open(filename, 'w') as file:
-
         print("Writing Nodes to RDF")
         count = 0
         for node, df in data['nodes'].items():
@@ -61,6 +71,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             file.write('\n\n')
             print(f"{time.time() - start_time:.2f} s")
 
+        print(str(count_x) + ' attributes added')
         print("Writing Relations to RDF")
         count = 0
         for relation, df in data['relations'].items():
@@ -97,14 +108,16 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
 
             df2 = []
             for i in range(len(df[property_columns])):
+                global count_y
                 edge_prop = ' ('
                 att_added = 0
                 for col in property_columns:
                     try:
                         if math.isnan(df[col].iloc[i]) == False:
-                            if col.endswith(("DateDisabled", "Float2", "Int2", "Bool")):
+                            if col.endswith(("Date", "Float", "Int2", "Bool")):
                                 edge_prop += col + '=' + str(df[col].iloc[i]) + ', '
                                 att_added = 1
+                                count_y += 1
 
                     except TypeError:
                         att_added = 0
@@ -113,6 +126,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
                     if pd.isna(df[col].iloc[i]) == False and att_added == 0:
                         edge_prop += col + '=' +'"' + str(df[col].iloc[i]) + '", '
                         att_added = 1
+                        count_y += 1
 
                     else:
                         att_added = 0
@@ -170,7 +184,8 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             blank_node2_prev = ''
 
             for i in range(len(df)):
-                print(f".", end='', flush=True)
+                if i % 50000 == 0:
+                    print(f".", end='', flush=True)
                 df2 = df
                 blank_node1 = df2[':blank_node1'].iloc[i]
                 blank_node2 = df2[':blank_node2'].iloc[i]
@@ -213,6 +228,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
             file.write('\n\n')
 
             print(f" {time.time() - start_time:.2f} s")
+        print(str(count_y) + ' attributes added on relations')
 
 
 """
