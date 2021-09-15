@@ -3,11 +3,14 @@ from reader import read
 from schema import create_schema
 from rdf import create_rdf
 from normalize_naming import normalize_data
+import time
+
+start = time.time()
 
 path_to_data = os.environ.get('DATAPATH', 'data')
 
 print("Reading CSVs")
-data = read(version='v1.1', data_root_path='/Users/michaelhobbs/data/Adamant/refactored/grakn_ingest/')
+data = read(version='', data_root_path='/Users/michaelhobbs/data/')
 
 print("Normalizing nodes and columns")
 data = normalize_data(data)
