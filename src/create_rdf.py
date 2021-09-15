@@ -12,6 +12,7 @@ path_to_data = os.environ.get('DATAPATH', 'data')
 print("Reading CSVs")
 data = read(version='', data_root_path='/Users/michaelhobbs/data/')
 
+
 print("Normalizing nodes and columns")
 data = normalize_data(data)
 
