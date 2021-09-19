@@ -35,7 +35,7 @@ def list_table_ids_with_changes(update_interval: int) -> List[str]:
     :param update_interval: how long ago (in seconds) to check for changes to tables
     :return: List of table_ids as strings
     """
-    update_delta = LOCALIZE_TIME.localize(datetime.now() - timedelta(seconds=update_interval))
+    update_delta = LOCALIZE_TIME.localize(datetime.now() - timedelta(seconds=int(update_interval)))
     result = BQ_CLIENT.list_tables(BQ_DATASET_ID)
     if BQ_UPDATE_ALL_TABLES:
         table_ids = [table.table_id for table in result]
