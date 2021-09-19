@@ -5,6 +5,12 @@ name = "pypi"
 
 [packages]
 "csv2rdf" = {path = ".", editable = true}
+pandas = "*"
+click = "*"
+google-cloud-bigquery = "*"
+google-cloud-bigquery-storage = "*"
+pytz = "*"
+pyarrow = "*"
 
 [dev-packages]
 requests = "*"

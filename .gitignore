@@ -9,5 +9,7 @@ csv2rdf.egg-info
 coverage.xml
 htmlcov
 html
-build
-dist
+.idea/
+__pycache__/
+*csv
+
