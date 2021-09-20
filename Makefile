@@ -42,6 +42,9 @@ import-bulk: destroy
 	docker-compose run zero bash -c "dgraph bulk -f ../data.rdf -s ../schema_generated.dql --reduce_shards=1 --zero=zero:5080 && mv out/0/p p && rm -rf out"
 	docker-compose up -d
 
+create_rdf:
+	PYTHONPATH=$${PWD}/src pipenv run python src/create_rdf.py
+
 csv2rdf:
 	pipenv run csv2rdf
 
