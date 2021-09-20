@@ -22,8 +22,16 @@ def node_row_to_rdf(row, node, columns, index_blank_node):
         if pd.isna(row[index]):
             continue
 
-        if property.endswith(("Date", "Float", "Int2", "Bool")) and str(row[index]) != 'nan':
-            s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(row[index]) + '" .\n'
+        # if property.endswith(("Float", "Bool")) and str(row[index]) != 'nan':
+        #     s += '_:' + row[index_blank_node] + ' <' + property + '> ' + str(row[index]) + ' .\n'
+        #     count_x += 1
+
+        if property.endswith("Date") and str(row[index]) != 'nan':
+            s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str('-'.join(str(row[index]).split('-')[::-1])) + '" .\n'
+            count_x += 1
+
+        elif property.endswith("Int") and str(row[index]) != 'nan':
+            s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(int(row[index])) + '" .\n'
             count_x += 1
 
         elif str(row[index]) != 'nan':
@@ -114,8 +122,13 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
                 for col in property_columns:
                     try:
                         if math.isnan(df[col].iloc[i]) == False:
-                            if col.endswith(("Date", "Float", "Int2", "Bool")):
-                                edge_prop += col + '=' + str(df[col].iloc[i]) + ', '
+                            if col.endswith(("Date")):
+                                edge_prop += col + '= "'  + str('-'.join(str(df[col].iloc[i]).split('-')[::-1])) + '", '
+                                att_added = 1
+                                count_y += 1
+
+                            elif col.endswith(("Int")):
+                                edge_prop += col + '= "' + str(int(df[col].iloc[i])) + '", '
                                 att_added = 1
                                 count_y += 1
 
@@ -124,7 +137,7 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
                         pass
 
                     if pd.isna(df[col].iloc[i]) == False and att_added == 0:
-                        edge_prop += col + '=' +'"' + str(df[col].iloc[i]) + '", '
+                        edge_prop += col + '= "' + str(df[col].iloc[i]) + '", '
                         att_added = 1
                         count_y += 1
 
