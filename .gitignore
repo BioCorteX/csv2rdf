@@ -1,3 +1,15 @@
 data
 schema_generated.graphql
 data.rdf
+dist
+build
+csv2rdf.egg-info
+.coverage
+.pytest_cache
+coverage.xml
+htmlcov
+html
+.idea/
+__pycache__/
+*csv
+

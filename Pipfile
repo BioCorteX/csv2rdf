@@ -4,11 +4,23 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
+"csv2rdf" = {path = ".", editable = true}
 pandas = "*"
-pydgraph = "*"
+click = "*"
+google-cloud-bigquery = "*"
+google-cloud-bigquery-storage = "*"
+pytz = "*"
+pyarrow = "*"
 
 [dev-packages]
+requests = "*"
+pydgraph = "*"
+portray = "*"
+coverage = "*"
+pylint = "*"
+diff-cover = "*"
+pytest = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.8"

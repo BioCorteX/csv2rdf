@@ -1,6 +1,7 @@
+
 def build_schema(node_columns, relations):
     nodes_properties = []
-    nodes_types= {}
+    nodes_types = {}
     # Define all node properties
     for node, columns in node_columns.items():
         if node not in nodes_types:
@@ -33,10 +34,10 @@ def build_schema(node_columns, relations):
     schema = ''
     # type
     for node, columns in nodes_types.items():
-        s = f"type {node} {{\n    "
-        s += "\n    ".join(set(columns))
-        s += "\n}\n\n"
-        schema += s
+        string = f"type {node} {{\n    "
+        string += "\n    ".join(set(columns))
+        string += "\n}\n\n"
+        schema += string
 
     # s = f"type abstract_queue {{\n    "
     # s += "\n    ".join(set(columns))
@@ -61,4 +62,3 @@ def create_schema(data, filename='schema_generated.dql'):
 
     with open('/Users/michaelhobbs/src/csv2rdf/' + filename, 'w') as file:
         file.write(schema)
-

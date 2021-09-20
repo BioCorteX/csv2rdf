@@ -2,7 +2,7 @@ import os
 from reader import read
 from schema import create_schema
 from rdf import create_rdf
-from rdf_test import create_rdf_test
+from tests.rdf_test import create_rdf_test
 from normalize_naming import normalize_data
 import time
 

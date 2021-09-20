@@ -1,6 +1,6 @@
-
-import pydgraph
 import json
+import pydgraph
+
 
 def main():
     client_stub = pydgraph.DgraphClientStub("localhost:9080")
@@ -15,11 +15,11 @@ def main():
 
     res = client.txn(read_only=True).query(query)
     data = json.loads(res.json)
-    for s in data['q']:
-
+    for specie in data['q']:
         query = """
 {
-  q(func: match(Species.name, \"""" + s['Species.name'] + """\", 1)) @filter(NOT eq(Species.name, \"""" + s['Species.name'] + """\")) {
+  q(func: match(Species.name, \"""" + specie['Species.name'] + """\", 1))
+   @filter(NOT eq(Species.name, \"""" + specie['Species.name'] + """\")) {
 		Species.name
   }
 }
@@ -28,9 +28,9 @@ def main():
         res2 = client.txn(read_only=True).query(query)
         data2 = json.loads(res2.json)
         if len(data2['q']) > 0:
-            print(s['Species.name'])
-            for s2 in data2['q']:
-                print("  ", s2['Species.name'])
+            print(specie['Species.name'])
+            for specie2 in data2['q']:
+                print("  ", specie2['Species.name'])
     # print('Response: {}'.format(data))
 
     client_stub.close()
@@ -39,6 +39,5 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except Exception as e:
-        print('Error: {}'.format(e))
-
+    except Exception as exp:
+        print('Error: {}'.format(exp))
