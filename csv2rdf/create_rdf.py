@@ -11,7 +11,7 @@ start = time.time()
 path_to_data = os.environ.get('DATAPATH', 'data')
 
 print("Reading CSVs")
-data = read(version='v1.7', data_root_path='data')
+data = read(version='Bo_v1_7', data_root_path='data')
 
 
 print("Normalizing nodes and columns")
