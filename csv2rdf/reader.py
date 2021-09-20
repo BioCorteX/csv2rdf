@@ -33,7 +33,7 @@ def read_relations(data_path, relations_path='relations'):
 
     relation_dfs = {}
     for relation, file in relation_files.items():
-        relation_dfs[tuple(relation.split("->-"))] = read_csv(file)
+        relation_dfs[tuple(relation.split("_"))] = read_csv(file)
 
     return relation_dfs
 
