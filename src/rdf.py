@@ -4,6 +4,7 @@ from typing import Dict
 import pandas as pd
 import time
 import numpy as np
+from datetime import datetime
 import math
 # from numba import jit
 
@@ -27,8 +28,19 @@ def node_row_to_rdf(row, node, columns, index_blank_node):
         #     count_x += 1
 
         if property.endswith("Date") and str(row[index]) != 'nan':
-            s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str('-'.join(str(row[index]).split('-')[::-1])) + '" .\n'
-            count_x += 1
+            for i in str(row[index]).split(','):
+                try:
+                    j = datetime.strptime(i, '%d-%m-%Y').strftime('%Y-%m-%d')
+                    s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(j) + '" .\n'
+                    count_x += 1
+                except ValueError:
+                    z = str(i).split('-')
+                    if len(z[-1]) == 2 and len(z[0]) == 2:
+                        j = str('-'.join(z[::-1]))
+                        s += '_:' + row[index_blank_node] + ' <' + property + '> "20' + str(j) + '" .\n'
+                        count_x += 1
+                    else:
+                        continue
 
         elif property.endswith("Int") and str(row[index]) != 'nan':
             s += '_:' + row[index_blank_node] + ' <' + property + '> "' + str(int(row[index])) + '" .\n'
@@ -123,9 +135,21 @@ def create_rdf(data: Dict[str, Dict[str, pd.DataFrame]], filename):
                     try:
                         if math.isnan(df[col].iloc[i]) == False:
                             if col.endswith(("Date")):
-                                edge_prop += col + '= "'  + str('-'.join(str(df[col].iloc[i]).split('-')[::-1])) + '", '
-                                att_added = 1
-                                count_y += 1
+                                for y in str(df[col].iloc[i]).split(','):
+                                    try:
+                                        j = datetime.strptime(y, '%d-%m-%Y').strftime('%Y-%m-%d')
+                                        edge_prop += col + '= "' + str(j) + '", '
+                                        att_added = 1
+                                        count_y += 1
+                                    except ValueError:
+                                        z = str(y).split('-')
+                                        if len(z[-1]) == 2 and len(z[0]) == 2:
+                                            j = str('-'.join(z[::-1]))
+                                            edge_prop += col + '= "20' + str(j) + '", '
+                                            att_added = 1
+                                            count_y += 1
+                                        else:
+                                            continue
 
                             elif col.endswith(("Int")):
                                 edge_prop += col + '= "' + str(int(df[col].iloc[i])) + '", '
