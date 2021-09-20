@@ -51,7 +51,7 @@ def build_schema(node_columns, relations):
     schema += '\nto: [uid] @reverse .'
     return schema
 
-
+ 
 def create_schema(data, filename='schema_generated.dql'):
     node_columns = {}
     for node, df in data['nodes'].items():
@@ -60,5 +60,5 @@ def create_schema(data, filename='schema_generated.dql'):
     relations = data['relations'].keys()
     schema = build_schema(node_columns, relations)
 
-    with open('/Users/michaelhobbs/src/csv2rdf/' + filename, 'w') as file:
+    with open(filename, 'w') as file:
         file.write(schema)
