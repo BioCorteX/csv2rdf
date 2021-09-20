@@ -62,10 +62,18 @@ def get_dataframe_from_tableid(table_id) -> pd.DataFrame:
 def update_csvs():
     out_of_date_table_ids = list_table_ids_with_changes(update_interval=BQ_UPDATE_INTERVAL)
     data_dir_path = os.path.join('data', BQ_DATASET)
-    os.makedirs(data_dir_path, exist_ok=True)
+    nodes_path = os.path.join(data_dir_path, 'nodes')
+    relations_path = os.path.join(data_dir_path, 'relations')
+    os.makedirs(nodes_path, exist_ok=True)
+    os.makedirs(relations_path, exist_ok=True)
     for table_id in out_of_date_table_ids:
         df = get_dataframe_from_tableid(table_id)
-        csv_path = os.path.join(data_dir_path, table_id + '.csv')
+        if table_id.startswith('Nodes'):
+            csv_path = os.path.join(nodes_path, table_id.lstrip('Nodes_') + '.csv')
+        elif table_id.startswith('Relations'):
+            csv_path = os.path.join(relations_path, table_id.lstrip('Relations_') + '.csv')
+        else:
+            raise ValueError('File format has changed')
         df.to_csv(csv_path, index=False)
         print(str(datetime.now()) + "\t" + f'BigQuery table \'{table_id}\' downloaded')
 
