@@ -10,7 +10,7 @@ services:
   zero:
     image: dgraph/dgraph:latest
     volumes:
-      - /tmp/data:/dgraph
+      - dgraph-data:/dgraph
       - ${PWD}/data.rdf:/data.rdf
       - ${PWD}/schema_generated.dql:/schema_generated.dql
     ports:
@@ -21,7 +21,7 @@ services:
   alpha:
     image: dgraph/dgraph:latest
     volumes:
-      - /tmp/data:/dgraph
+      - dgraph-data:/dgraph
     ports:
       - 8080:8080
       - 9080:9080
@@ -32,3 +32,5 @@ services:
   #  ports:
   #    - 8000:8000
   #  command: dgraph-ratel
+  volumes:
+    dgraph-data:
