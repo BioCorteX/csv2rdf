@@ -8,29 +8,27 @@
 version: "3.2"
 services:
   zero:
-    image: dgraph/dgraph:master
+    image: dgraph/dgraph:latest
     volumes:
-      - dgraph-data:/dgraph
+      - /tmp/data:/dgraph
       - ${PWD}/data.rdf:/data.rdf
       - ${PWD}/schema_generated.dql:/schema_generated.dql
     ports:
       - 5080:5080
       - 6080:6080
-    restart: on-failure
+    restart: unless-stopped
     command: dgraph zero --my=zero:5080
   alpha:
-    image: dgraph/dgraph:master
+    image: dgraph/dgraph:latest
     volumes:
-      - dgraph-data:/dgraph
+      - /tmp/data:/dgraph
     ports:
       - 8080:8080
       - 9080:9080
-    restart: on-failure
+    restart: unless-stopped
     command: dgraph alpha --my=alpha:7080 --zero=zero:5080 --security whitelist="0.0.0.0/0"
   #ratel:
   #  image: dgraph/dgraph:latest
   #  ports:
   #    - 8000:8000
   #  command: dgraph-ratel
-volumes:
-  dgraph-data:
