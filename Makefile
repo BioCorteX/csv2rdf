@@ -48,6 +48,9 @@ create_rdf:
 csv2rdf:
 	pipenv run csv2rdf
 
+update-data:
+	pipenv run python csv2rdf/update_csvs_from_big_query.py
+
 get-schema:
 	curl "http://localhost:8080/admin"   -H "Content-Type: application/json"   --data-binary '{"query":"{\n schema {}\n}","variables":{}}'   --compressed | jq -r .data.getGQLSchema.schemainclude .env
 
@@ -111,3 +114,6 @@ build:
 
 install:
 	@echo run: pip install dist/${PROJECT_NAME}-${PROJECT_VERSION}-py2.py3-none-any.whl
+
+cron-job: # update-data create_rdf import-bulk
+	date +"Data last updated at %F %T %z" > last_data_refresh.log
